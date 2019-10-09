@@ -25,7 +25,7 @@
 #include <network_utils.hpp>
 #include "basic_controller.hpp"
 
-namespace cfx
+namespace api
 {
 	void BasicController::setEndpoint(const std::string &value)
 	{
@@ -35,7 +35,7 @@ namespace cfx
 		endpointBuilder.set_scheme(endpointURI.scheme());
 
 		if(endpointURI.host() == "host_auto_ip4") {
-			endpointBuilder.set_host(cfx::NetworkUtils::hostIP4());
+			endpointBuilder.set_host(api::NetworkUtils::hostIP4());
 		} else if(endpointURI.host() == "host_auto_ip6") {
 			endpointBuilder.set_host("localhost");
 		} else {
@@ -45,23 +45,23 @@ namespace cfx
 		endpointBuilder.set_port(endpointURI.port());
 		endpointBuilder.set_path(endpointURI.path());
 
-		_listener = http_listener(endpointBuilder.to_uri());
+		this->_listener = http_listener(endpointBuilder.to_uri());
 	}
 
 	std::string BasicController::endpoint() const
 	{
-		return _listener.uri().to_string();
+		return this->_listener.uri().to_string();
 	}
 
 	pplx::task<void> BasicController::accept()
 	{
 		this->initRestOpHandlers();
-		return _listener.open();
+		return this->_listener.open();
 	}
 
 	pplx::task<void> BasicController::shutdown()
 	{
-		return _listener.close();
+		return this->_listener.close();
 	}
 
 	std::vector<utility::string_t> BasicController::requestPath(const http_request &message)

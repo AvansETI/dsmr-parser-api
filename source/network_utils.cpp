@@ -24,7 +24,7 @@
 
 #include "network_utils.hpp"
 
-namespace cfx {
+namespace api {
 
    HostInetInfo NetworkUtils::queryHostInetInfo() {
        io_service ios;

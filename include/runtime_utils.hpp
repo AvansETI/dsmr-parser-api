@@ -29,7 +29,7 @@
 #include <execinfo.h>
 #include <unistd.h>
 
-namespace cfx {
+namespace api {
     class RuntimeUtils {
     public:
         static void printStackTrace() {

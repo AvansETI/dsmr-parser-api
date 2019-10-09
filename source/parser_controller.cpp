@@ -25,49 +25,24 @@ namespace api
 		message.reply(status_codes::OK, response);
 	}
 
-	void ParserController::handlePut(http_request message)
-	{
-	}
-
 	void ParserController::handlePost(http_request message)
 	{
-		std::string datagram;
-		dsmr::DefaultParser parser;
+		try {
+			std::string datagram;
+			dsmr::DefaultParser parser;
 
-		message.extract_json().then([&](json::value json) {
-			auto& data = json.at("datagram").as_string();
-			datagram.append(data);
-			auto result = parser.parse(datagram);
-			message.reply(status_codes::OK, result);
-		});
-	}
-
-	void ParserController::handleDelete(http_request message)
-	{
-	}
-
-	void ParserController::handlePatch(http_request messge)
-	{
-	}
-
-	void ParserController::handleHead(http_request message)
-	{
-	}
-
-	void ParserController::handleOptions(http_request message)
-	{
-	}
-
-	void ParserController::handleTrace(http_request message)
-	{
-	}
-
-	void ParserController::handleConnect(http_request message)
-	{
-	}
-
-	void ParserController::handleMerge(http_request message)
-	{
+			message.extract_json().then([&](json::value json) {
+				auto& data = json.at("datagram").as_string();
+				datagram.append(data);
+				auto result = parser.parse(datagram);
+				message.reply(status_codes::OK, result);
+			});
+		} catch(std::exception& e) {
+			std::cout << "Unable to handle request: " << e.what();
+			message.reply(status_codes::InternalError);
+		} catch(...) {
+			message.reply(status_codes::InternalError);
+		}
 	}
 
 	void ParserController::initRestOpHandlers()
