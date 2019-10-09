@@ -37,6 +37,31 @@ Expected body:
 }
 ```
 
+Example response (`HTTP 200`):
+```json
+{
+  "electricity_tariff":"0001",
+  "energy_delivered_tariff1":185,
+  "energy_delivered_tariff2":84,
+  "energy_returned_tariff1":13,
+  "energy_returned_tariff2":19,
+  "equipment_id":"205C4D246333034353537383234323121",
+  "gas_device_type":3,
+  "gas_equipment_id":"3238313031453631373038389930337131",
+  "identification":"KMP5ZABF001587315111",
+  "p1_version":"",
+  "power_delivered":0,
+  "power_delivered_l1":156561,
+  "power_delivered_l2":3355452,
+  "power_delivered_l3":0,
+  "power_returned":0,
+  "power_returned_l1":156560,
+  "power_returned_l2":239516,
+  "power_returned_l3":156560,
+  "timestamp":""
+}
+```
+
 `GET http://localhost:5000/parser`
 
 ## Compiling
