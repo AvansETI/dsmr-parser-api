@@ -28,13 +28,13 @@ namespace api
 	void ParserController::handlePost(http_request message)
 	{
 		try {
-			std::string datagram;
-			dsmr::DefaultParser parser;
 
 			message.extract_json().then([&](json::value json) {
-				auto& data = json.at("datagram").as_string();
-				datagram.append(data);
-				auto result = parser.parse(datagram);
+				dsmr::DefaultParser parser;
+				auto data = json.at("datagram").as_string();
+
+				auto result = parser.parse(data);
+				std::cout << result << std::endl;
 				message.reply(status_codes::OK, result);
 			});
 		} catch(std::exception& e) {
