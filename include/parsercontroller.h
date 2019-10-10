@@ -12,11 +12,19 @@
 
 namespace api
 {
-	class ParserController : public api::BasicController, api::Controller {
-	public:
-		void handleGet(http_request message) ;
-		void handlePost(http_request message) ;
-		void initRestOpHandlers() override;
+	using namespace logging::trivial;
 
+	class ParserController : public api::BasicController, api::Controller {
+
+	public:
+		void handleGet(http_request message) override ;
+		void handlePost(http_request message) override ;
+		void handlePatch(http_request message) override;
+		void handlePut(http_request message) override;
+		void handleDelete(http_request message) override;
+
+		void initRestOpHandlers() override;
+	private:
+		src::severity_logger<severity_level> lg;
 	};
 }

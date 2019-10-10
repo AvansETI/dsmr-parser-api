@@ -42,5 +42,8 @@ namespace api {
     public: 
         virtual void handleGet(http_request message) = 0;
         virtual void handlePost(http_request message) = 0;
+	    virtual void handlePatch(http_request message) = 0;
+	    virtual void handlePut(http_request message) = 0;
+	    virtual void handleDelete(http_request message) = 0;
     };
 }
