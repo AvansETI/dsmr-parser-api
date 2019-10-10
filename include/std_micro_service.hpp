@@ -48,3 +48,8 @@
 #include <vector>
 #include <map>
 #include <regex>
+
+namespace logging = boost::log;
+namespace src = boost::log::sources;
+namespace sinks = boost::log::sinks;
+namespace keywords = boost::log::keywords;
