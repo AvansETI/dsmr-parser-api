@@ -32,17 +32,22 @@ namespace api
 	void ParserController::handlePost(http_request message)
 	{
 		try {
+			auto query = uri::split_query(message.request_uri().query());
 
-			message.extract_json().then([&](json::value json) {
-				dsmr::DefaultParser parser;
-				auto data = json.at("datagram").as_string();
+			// [] Returns empty string if not present
+			bool bulk = query["bulk"] == "true";
 
-				auto result = parser.parse(data);
+			if(bulk) {
+				this->handleBulkParseRequest(message);
+				BOOST_LOG_SEV(lg, info) << "Bulk parse request received from: " << message.remote_address();
+			} else {
+				this->handleParseRequest(message);
 				BOOST_LOG_SEV(lg, info) << "Parse request received from: " << message.remote_address();
-				message.reply(status_codes::OK, result);
-			});
+			}
+
 		} catch(std::exception& e) {
-			std::cout << "Unable to handle request: " << e.what();
+			BOOST_LOG_SEV(lg, info) << "Parse request failed from: " << message.remote_address();
+			BOOST_LOG_SEV(lg, info) << e.what();
 			message.reply(status_codes::InternalError);
 		} catch(...) {
 			message.reply(status_codes::InternalError);
@@ -77,5 +82,33 @@ namespace api
 		this->_listener.support(methods::PUT, std::bind(&ParserController::handlePut, this, std::placeholders::_1));
 		this->_listener.support(methods::PATCH, std::bind(&ParserController::handlePatch, this, std::placeholders::_1));
 		this->_listener.support(methods::DEL, std::bind(&ParserController::handleDelete, this, std::placeholders::_1));
+	}
+
+	void ParserController::handleParseRequest(http_request& message) const
+	{
+		message.extract_json().then([&](json::value json) {
+			dsmr::DefaultParser parser;
+			auto data = json.at("datagram").as_string();
+
+			auto result = parser.parse(data);
+			message.reply(status_codes::OK, result, "application/json");
+		}).get();
+	}
+
+	void ParserController::handleBulkParseRequest(http_request &message) const
+	{
+		message.extract_json().then([&](json::value json) {
+			dsmr::DefaultParser parser;
+			auto data = json.as_array();
+			std::vector<std::string> datagrams;
+
+			for(auto& entry : data) {
+				std::cout << entry.at("datagram") << std::endl;
+				datagrams.emplace_back(entry.at("datagram").as_string());
+			}
+
+			auto result = parser.parse(datagrams);
+			message.reply(status_codes::OK, result, "application/json");
+		}).wait();
 	}
 }

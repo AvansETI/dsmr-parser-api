@@ -24,7 +24,12 @@ namespace api
 		void handleDelete(http_request message) override;
 
 		void initRestOpHandlers() override;
+
 	private:
 		src::severity_logger<severity_level> lg;
+
+		/* Methods */
+		void handleBulkParseRequest(http_request& message) const;
+		void handleParseRequest(http_request& message) const;
 	};
 }
