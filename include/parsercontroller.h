@@ -31,5 +31,6 @@ namespace api
 		/* Methods */
 		void handleBulkParseRequest(http_request& message) const;
 		void handleParseRequest(http_request& message) const;
+		void callWrapper(http_request& msg, bool bulk) const;
 	};
 }

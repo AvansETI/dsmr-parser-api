@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <condition_variable>
 
 #include <std_micro_service.hpp>
 #include <parsercontroller.h>
@@ -38,9 +39,11 @@ namespace api
 			bool bulk = query["bulk"] == "true";
 
 			if(bulk) {
-				this->handleBulkParseRequest(message);
+				this->callWrapper(message, true);
+				//this->handleBulkParseRequest(message);
 				BOOST_LOG_SEV(lg, info) << "Bulk parse request received from: " << message.remote_address();
 			} else {
+				this->callWrapper(message, false);
 				this->handleParseRequest(message);
 				BOOST_LOG_SEV(lg, info) << "Parse request received from: " << message.remote_address();
 			}
@@ -50,6 +53,7 @@ namespace api
 			BOOST_LOG_SEV(lg, info) << e.what();
 			message.reply(status_codes::InternalError);
 		} catch(...) {
+			BOOST_LOG_SEV(lg, info) << "Parse request failed from: " << message.remote_address();
 			message.reply(status_codes::InternalError);
 		}
 	}
@@ -93,6 +97,31 @@ namespace api
 			auto result = parser.parse(data);
 			message.reply(status_codes::OK, result, "application/json");
 		}).get();
+	}
+
+	void ParserController::callWrapper(http_request& msg, bool bulk) const
+	{
+		std::mutex m;
+		std::condition_variable cv;
+
+		std::thread runner([&cv]() {
+			if(bulk) {
+				this->handleBulkParseRequest(msg);
+			} else {
+				this->handleParseRequest(msg);
+			}
+
+			cv.notify_one();
+		});
+
+		runner.detach();
+		{
+			std::unique_lock<std::mutex> l(m);
+
+			if(cv.wait_for(l, 2s) == std::cv_status::timout) {
+				throw std::runtime_error("timeout");
+			}
+		}
 	}
 
 	void ParserController::handleBulkParseRequest(http_request &message) const
